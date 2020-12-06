@@ -12,10 +12,17 @@ move coordinate. But if you remove these spaces to keep only one, it will
 work.
 
 ```
-python kg-converter.py kifu_name gif_name
+python kg-converter.py kifu_name.kifu gif_name.gif
 ```
 
 # Example
 
 Game played 5th december 2020, by 羽生善治 九段 VS 豊島将之 竜王.
 ![pro game gif](test/pro-game.gif)
+
+# TODO
+
+ - Fix kifu name, to accept .kif extention
+ - Rework gif generation to use less RAM
+ - Check if we can speed the gif generation
+ - Add a GUI for a more user friendly use
