@@ -8,6 +8,7 @@ import numpy as np
 import enum
 import sys
 import shogi.KIF
+from numpngw import AnimatedPNGWriter
 
 class Piece(enum.Enum):
     void = 0
@@ -360,6 +361,6 @@ if __name__ == "__main__":
     data.append(('fb', data[-1][1]) if data[-1][0][1] == 'b' else ('fw', data[-1][1]))
 
     ani = FuncAnimation(fig, update_anim, data, init_func=init_anim)
-    writer = PillowWriter(fps=1)
+    writer = AnimatedPNGWriter(fps=1)
     progress_callback = lambda i, n: print(f'Saving frame {i} of {n}')
     ani.save(sys.argv[2], writer=writer, progress_callback=progress_callback)
