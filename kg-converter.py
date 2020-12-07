@@ -20,54 +20,15 @@ class PieceType(enum.Enum):
     rook = 'R'
     king = 'K'
 
-PieceStrToPieceType = {name : member for name, member in PieceType.__members__.items()}
-
 class Color(enum.Enum):
-    black = False,
+    black = False
     white = True
 
-ColorStrToColor = {'black' : Color.black, 'white' : Color.white}
-
-class Piece(enum.Enum):
-    # Color == white, PieceType, Promoted
-    void = None
-    black_pawn = (Color.black, PieceType.pawn, False)
-    black_ppawn = (Color.black, PieceType.pawn, True)
-    black_lance = (Color.black, PieceType.lance, False)
-    black_plance = (Color.black, PieceType.lance, True)
-    black_knight = (Color.black, PieceType.knight, False)
-    black_pknight = (Color.black, PieceType.knight, True)
-    black_silver = (Color.black, PieceType.silver, False)
-    black_psilver = (Color.black, PieceType.silver, True)
-    black_gold = (Color.black, PieceType.gold, False)
-    black_bishop = (Color.black, PieceType.bishop, False)
-    black_pbishop = (Color.black, PieceType.bishop, True)
-    black_rook = (Color.black, PieceType.rook, False)
-    black_prook = (Color.black, PieceType.rook, True)
-    black_king = (Color.black, PieceType.king, False)
-    white_pawn = (Color.white, PieceType.pawn, False)
-    white_ppawn = (Color.white, PieceType.pawn, True)
-    white_lance = (Color.white, PieceType.lance, False)
-    white_plance = (Color.white, PieceType.lance, True)
-    white_knight = (Color.white, PieceType.knight, False)
-    white_pknight = (Color.white, PieceType.knight, True)
-    white_silver = (Color.white, PieceType.silver, False)
-    white_psilver = (Color.white, PieceType.silver, True)
-    white_gold = (Color.white, PieceType.gold, False)
-    white_bishop = (Color.white, PieceType.bishop, False)
-    white_pbishop = (Color.white, PieceType.bishop, True)
-    white_rook = (Color.white, PieceType.rook, False)
-    white_prook = (Color.white, PieceType.rook, True)
-    white_king = (Color.white, PieceType.king, False)
-
-    def get_color(self):
-        return self.value[0]
-
-    def get_type(self):
-        return self.value[1]
-
-    def get_promoted(self):
-        return self.value[2]
+class Piece:
+    def __init__(self, color, piece_type, promoted):
+        self.color = color
+        self.piece_type = piece_type
+        self.promoted = promoted
 
 class Hand:
     def __init__(self):
@@ -135,22 +96,22 @@ class Board_pieces:
             drop_piece = Piece((color, move.drop, False))
             self.pieces[move.new_line][move.new_col] = drop_piece
             if color == Color.white:
-                self.white_hand.remove_piece(move.drop)
+                self.white_hand.remove_piece(drop_piece.type)
             else:
-                self.black_hand.remove_piece(move.drop)
+                self.black_hand.remove_piece(drop_piece.type)
 
         else:
             piece = self.pieces[move.prev_line][move.prev_col]
             self.pieces[move.prev_line][move.prev_col] = Piece.void
 
             piece_opp = self.pieces[move.new_line][move.new_col]
-            self.pieces[move.new_line][move.new_col] = Piece((color, piece.get_type(), move.promoted))
+            self.pieces[move.new_line][move.new_col] = Piece((color, piece.type, move.promoted))
 
             if piece_opp != Piece.void:
                 if color == Color.white:
-                    self.white_hand.add_piece(piece_opp.get_type())
+                    self.white_hand.add_piece(piece_opp.type)
                 else:
-                    self.black_hand.add_piece(piece_opp.get_type())
+                    self.black_hand.add_piece(piece_opp.type)
 
 def draw_board(ax, canvas_width, canvas_height, move=None,
                winner=None, players=None):
@@ -303,7 +264,7 @@ def load_piece_imgs():
         piece_img = (plt.imread(PATH + piece_str + '_letter.png') * 255).astype('uint8')
 
         promoted = piece_str[0] == 'p' and piece_str[1] != 'a'
-        piece_type = PieceStrToPieceType[piece_str[promoted:]]
+        piece_type = PieceType[piece_str[promoted:]]
         pieces[Piece((Color.black, piece_type, promoted))] = piece_img
         pieces[Piece((Color.white, piece_type, promoted))] = ndimage.rotate(piece_img, 180)
     return pieces
@@ -341,7 +302,7 @@ if __name__ == "__main__":
             color = winner if color[0] == 'e' else color
         move = None
         if color[1] != 'i' and color[0] != 'f':
-            color = ColorStrToColor[color]
+            color = Color[color]
             move = Move(move_str)
             pieces.move(color, move)
         board_info = draw_board(ax, canvas_width, canvas_height,
