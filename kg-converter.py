@@ -250,11 +250,11 @@ def draw_board(ax, canvas_width, canvas_height, move_info = None,
 
     # Sente / Gote
 
-    sente = OffsetImage(plt.imread('shogi-black.png'), zoom=0.7)
+    sente = OffsetImage(plt.imread('resources/shogi-black.png'), zoom=0.7)
     ax.add_artist(AnnotationBbox(sente, (board_x + 0.8, board_y -
                                          margin - 0.47), frameon=False))
 
-    gote = OffsetImage(plt.imread('shogi-white.png'), zoom=0.7)
+    gote = OffsetImage(plt.imread('resources/shogi-white.png'), zoom=0.7)
     ax.add_artist(AnnotationBbox(gote, (board_x + board_width - 0.8,
                                         board_y + board_height +
                                         margin + 0.47),
@@ -263,7 +263,7 @@ def draw_board(ax, canvas_width, canvas_height, move_info = None,
     # Players
 
     if players != None:
-        font = FontProperties(fname='/usr/share/fonts/OTF/ipamp.ttf', size=30)
+        font = FontProperties(fname='resources/ipamp.ttf', size=30)
         sente, gote = players
         ax.text(board_x, board_y - margin - piece_holder_height - 0.4,
                 sente, fontproperties=font)
@@ -304,7 +304,7 @@ def draw_pieces(ax, pieces, piece_imgs, board_info):
         plt.text(x - 0.1, y + 0.5, pieces.white_hand[p], fontsize=20)
 
 def load_piece_imgs():
-    PATH = './pieces/'
+    PATH = 'resources/pieces/'
     pieces_str = ['knight', 'lance', 'king', 'gold', 'bishop', 'pawn',
                   'silver', 'rook', 'pknight', 'plance', 'pbishop', 'ppawn',
                   'psilver', 'prook']
