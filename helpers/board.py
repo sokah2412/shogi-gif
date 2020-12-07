@@ -55,17 +55,20 @@ class Hand:
 class Move:
     def __init__(self, move_str):
         self.drop = None
+        self.prev_col = -1
+        self.prev_line = -1
+        self.new_col = int(move_str[2]) - 1
+        self.new_line = 8 - (ord(move_str[3]) - ord('a'))
+        self.promoted = move_str[-1] == '+'
+
         if move_str[1] == '*':
             self.drop = PieceType(move_str[0])
         else:
             # Adapt move_str format to board format
             self.prev_col = int(move_str[0]) - 1
             self.prev_line = 8 - (ord(move_str[1]) - ord('a'))
-        self.new_col = int(move_str[2]) - 1
-        self.new_line = 8 - (ord(move_str[3]) - ord('a'))
-        self.promoted = move_str[-1] == '+'
 
-class Board_pieces:
+class Board:
     def __init__(self, black_board, white_board):
         self.pieces = self.init_board(black_board, white_board)
         self.white_hand = Hand()
@@ -100,7 +103,7 @@ class Board_pieces:
             self.pieces[move.prev_line][move.prev_col] = Piece(None, PieceType.void, None)
 
             piece_opp = self.pieces[move.new_line][move.new_col]
-            piece.promoted = move.promoted
+            piece.promoted = piece.promoted or move.promoted
             self.pieces[move.new_line][move.new_col] = piece
 
             if piece_opp.piece_type != PieceType.void:

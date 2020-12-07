@@ -12,24 +12,24 @@ if __name__ == "__main__":
         print(f'usage: python {sys.argv[0]} kifu_name gif_name')
         exit()
 
-    plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
+    kif = shogi.KIF.Parser.parse_file(sys.argv[1])[0]
+    players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
+    board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
 
     canvas_width = 10
     canvas_height = 17
 
+    plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
     fig, ax = plt.subplots(figsize=(canvas_width, canvas_height))
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
-    board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
-    pieces = Board_pieces(board_str, board_str)
-    piece_imgs = load_piece_imgs()
-    kif = shogi.KIF.Parser.parse_file(sys.argv[1])[0]
-    players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
+    board = Board(board_str, board_str)
+    printer = Printer(ax, board, canvas_width, canvas_height, players)
 
     def init_anim():
         ax.axis('off')
-        board_info = draw_board(ax, canvas_width, canvas_height)
-        draw_pieces(ax, pieces, piece_imgs, board_info)
+        printer.draw_frame()
+        printer.draw_pieces()
 
     def update_anim(data):
         ax.clear()
@@ -43,11 +43,9 @@ if __name__ == "__main__":
         if color[1] != 'i' and color[0] != 'f':
             color = Color[color]
             move = Move(move_str)
-            pieces.move(color, move)
-        board_info = draw_board(ax, canvas_width, canvas_height,
-                                winner=winner, move=move,
-                                players=players)
-        draw_pieces(ax, pieces, piece_imgs, board_info)
+            board.move(color, move)
+        printer.draw_frame(winner=winner, move=move)
+        printer.draw_pieces()
 
     data = [('black', move) if i % 2 == 0 else ('white', move) for i,
             move in enumerate(kif['moves'])]
