@@ -15,8 +15,8 @@ class PieceType(enum.Enum):
         return str(self.value)
 
 class Color(enum.Enum):
-    black = False
-    white = True
+    black = 0
+    white = 1
 
 class Piece:
     def __init__(self, color, piece_type, promoted):

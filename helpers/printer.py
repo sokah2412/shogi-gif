@@ -83,8 +83,8 @@ class Printer():
         black_color = 'white'
 
         if winner:
-            white_color = 'lightgreen' if winner == 'white' else 'lightcoral'
-            black_color = 'lightgreen' if winner == 'black' else 'lightcoral'
+            white_color = 'lightgreen' if winner == Color.white else 'lightcoral'
+            black_color = 'lightgreen' if winner == Color.black else 'lightcoral'
 
         self.ax.add_patch(Rectangle((self.board_x, self.board_y +
                                      self.board_height + self.margin), self.board_width,
