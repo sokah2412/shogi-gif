@@ -250,11 +250,11 @@ def draw_board(ax, canvas_width, canvas_height, move_info = None,
 
     # Sente / Gote
 
-    sente = OffsetImage(plt.imread('resources/shogi-black.png'), zoom=0.7)
+    sente = OffsetImage(plt.imread('resources/shogi-black.png'), zoom=1)
     ax.add_artist(AnnotationBbox(sente, (board_x + 0.8, board_y -
                                          margin - 0.47), frameon=False))
 
-    gote = OffsetImage(plt.imread('resources/shogi-white.png'), zoom=0.7)
+    gote = OffsetImage(plt.imread('resources/shogi-white.png'), zoom=1)
     ax.add_artist(AnnotationBbox(gote, (board_x + board_width - 0.8,
                                         board_y + board_height +
                                         margin + 0.47),
