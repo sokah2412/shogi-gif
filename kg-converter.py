@@ -27,18 +27,13 @@ if __name__ == "__main__":
     plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
     fig, ax = plt.subplots(figsize=(canvas_width, canvas_height))
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+    ax.axis('off')
 
     board = Board(board_str, board_str)
     printer = Printer(ax, board, canvas_width, canvas_height, players)
 
-    def init_anim():
-        ax.axis('off')
-        printer.draw_frame()
-        printer.draw_pieces()
-
     def update_anim(data):
         ax.clear()
-        ax.axis('off')
         state, color, move = data
         if state == State.beginning:
             printer.draw_frame()
@@ -53,7 +48,7 @@ if __name__ == "__main__":
     data.insert(0, (State.beginning, None, None))
     data.append((State.end, data[-1][1], data[-1][2])) # Print last move with winner color
 
-    ani = FuncAnimation(fig, update_anim, data, init_func=init_anim)
+    ani = FuncAnimation(fig, update_anim, data)
     writer = AnimatedPNGWriter(fps=1)
     progress_callback = lambda i, n: print(f'Saving frame {i} of {n}')
     ani.save(sys.argv[2], writer=writer, progress_callback=progress_callback)
