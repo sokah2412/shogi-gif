@@ -110,7 +110,7 @@ class Board_pieces:
             self.pieces[move.prev_line][move.prev_col] = Piece(None, PieceType.void, None)
 
             piece_opp = self.pieces[move.new_line][move.new_col]
-            piece.promoted = move.promoted
+            piece.promoted = piece.promoted or move.promoted
             self.pieces[move.new_line][move.new_col] = piece
 
             if piece_opp.piece_type != PieceType.void:
