@@ -284,20 +284,20 @@ def draw_pieces(ax, pieces, piece_imgs, board_info):
 
     for i in range(9):
         for j in range(9):
-            p = OffsetImage(piece_imgs[pieces.get(i, 8 - j)], zoom=0.07)
+            p = OffsetImage(piece_imgs[pieces.get(i, 8 - j)], zoom=1)
             x = board_x + (board_width / 9) * j + 0.45
             y = board_y + (board_height / 9) * i + 0.55
             ax.add_artist(AnnotationBbox(p, (x, y), frameon=False))
 
     for i, p in enumerate(pieces.black_hand):
-        img = OffsetImage(piece_imgs[p], zoom=0.065)
+        img = OffsetImage(piece_imgs[p], zoom=0.93)
         x = board_x + piece_size * i + 2.3
         y = board_y - margin - 1
         ax.add_artist(AnnotationBbox(img, (x, y), frameon=False))
         plt.text(x - 0.1, y - 0.7, pieces.black_hand[p], fontsize=20)
 
     for i, p in enumerate(pieces.white_hand):
-        img = OffsetImage(piece_imgs[p], zoom=0.065)
+        img = OffsetImage(piece_imgs[p], zoom=0.93)
         x = board_x + board_width - piece_size * i - 2.3
         y = board_y + board_height + margin + 1
         ax.add_artist(AnnotationBbox(img, (x, y), frameon=False))
