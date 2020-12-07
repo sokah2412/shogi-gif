@@ -19,6 +19,10 @@ class PieceType(enum.Enum):
     bishop = 'B'
     rook = 'R'
     king = 'K'
+    void = 'V'
+
+    def __str__(self):
+        return str(self.value)
 
 class Color(enum.Enum):
     black = False
@@ -29,6 +33,23 @@ class Piece:
         self.color = color
         self.piece_type = piece_type
         self.promoted = promoted
+
+    def __str__(self):
+        return f'color: {self.color}, type: {self.piece_type}, promoted: {self.promoted}'
+    def __hash__(self):
+        if self.piece_type == PieceType.void:
+            return hash((None, PieceType.void, None))
+        else:
+            return hash((self.color, self.piece_type, self.promoted))
+
+    def __eq__(self, other):
+        if self.piece_type == PieceType.void:
+            return self.piece_type == other.piece_type
+        else:
+            return (self.color, self.piece_type, self.promoted) == (other.color, other.piece_type, other.promoted)
+
+    def __ne__(self, other):
+        return not(self == other)
 
 class Hand:
     def __init__(self):
@@ -55,63 +76,48 @@ class Move:
         self.promoted = move_str[-1] == '+'
 
 class Board_pieces:
-    def __init__(self):
-        self.pieces = [[Piece.void] * 9 for i in range(9)]
+    def __init__(self, black_board, white_board):
+        self.pieces = self.init_board(black_board, white_board)
         self.white_hand = Hand()
         self.black_hand = Hand()
-        self.init_board()
 
-    def init_board(self):
-        self.pieces[2] = [Piece.black_pawn] * 9
-        self.pieces[0][0] = Piece.black_lance
-        self.pieces[0][8] = Piece.black_lance
-        self.pieces[0][1] = Piece.black_knight
-        self.pieces[0][7] = Piece.black_knight
-        self.pieces[0][2] = Piece.black_silver
-        self.pieces[0][6] = Piece.black_silver
-        self.pieces[0][3] = Piece.black_gold
-        self.pieces[0][5] = Piece.black_gold
-        self.pieces[0][4] = Piece.black_king
-        self.pieces[1][1] = Piece.black_rook
-        self.pieces[1][7] = Piece.black_bishop
+    def init_board(self, black_board, white_board):
+        pieces = [[Piece(None, PieceType.void, None)] * 9 for i in range(9)]
 
-        self.pieces[6] = [Piece.white_pawn] * 9
-        self.pieces[8][0] = Piece.white_lance
-        self.pieces[8][8] = Piece.white_lance
-        self.pieces[8][1] = Piece.white_knight
-        self.pieces[8][7] = Piece.white_knight
-        self.pieces[8][2] = Piece.white_silver
-        self.pieces[8][6] = Piece.white_silver
-        self.pieces[8][3] = Piece.white_gold
-        self.pieces[8][5] = Piece.white_gold
-        self.pieces[8][4] = Piece.white_king
-        self.pieces[7][7] = Piece.white_rook
-        self.pieces[7][1] = Piece.white_bishop
+        for i, row_str in enumerate(black_board):
+            for j, col_str in enumerate(row_str[::-1]):
+                pieces[i][j] = Piece(Color.black, PieceType(col_str), False)
+
+        for i, row_str in enumerate(white_board[::-1]):
+            for j, col_str in enumerate(row_str):
+                pieces[6 + i][j] = Piece(Color.white, PieceType(col_str), False)
+
+        return pieces
 
     def get(self, x, y):
         return self.pieces[x][y]
 
     def move(self, color, move):
         if move.drop != None:
-            drop_piece = Piece((color, move.drop, False))
+            drop_piece = Piece(color, move.drop, False)
             self.pieces[move.new_line][move.new_col] = drop_piece
             if color == Color.white:
-                self.white_hand.remove_piece(drop_piece.type)
+                self.white_hand.remove_piece(drop_piece.piece_type)
             else:
-                self.black_hand.remove_piece(drop_piece.type)
-
+                self.black_hand.remove_piece(drop_piece.piece_type)
         else:
             piece = self.pieces[move.prev_line][move.prev_col]
-            self.pieces[move.prev_line][move.prev_col] = Piece.void
+            self.pieces[move.prev_line][move.prev_col] = Piece(None, PieceType.void, None)
 
             piece_opp = self.pieces[move.new_line][move.new_col]
-            self.pieces[move.new_line][move.new_col] = Piece((color, piece.type, move.promoted))
+            piece.promoted = move.promoted
+            self.pieces[move.new_line][move.new_col] = piece
 
-            if piece_opp != Piece.void:
+            if piece_opp.piece_type != PieceType.void:
                 if color == Color.white:
-                    self.white_hand.add_piece(piece_opp.type)
+                    self.white_hand.add_piece(piece_opp.piece_type)
                 else:
-                    self.black_hand.add_piece(piece_opp.type)
+                    self.black_hand.add_piece(piece_opp.piece_type)
 
 def draw_board(ax, canvas_width, canvas_height, move=None,
                winner=None, players=None):
@@ -238,7 +244,7 @@ def draw_pieces(ax, pieces, piece_imgs, board_info):
 
     for i, (pt, value) in enumerate(pieces.black_hand.pieces.items()):
         if value > 0:
-            p = Piece((Color.black, pt, False))
+            p = Piece(Color.black, pt, False)
             img = OffsetImage(piece_imgs[p], zoom=0.93)
             x = board_x + piece_size * i + 2.3
             y = board_y - margin - 1
@@ -247,7 +253,7 @@ def draw_pieces(ax, pieces, piece_imgs, board_info):
 
     for i, (pt, value) in enumerate(pieces.white_hand.pieces.items()):
         if value > 0:
-            p = Piece((Color.white, pt, False))
+            p = Piece(Color.white, pt, False)
             img = OffsetImage(piece_imgs[p], zoom=0.93)
             x = board_x + board_width - piece_size * i - 2.3
             y = board_y + board_height + margin + 1
@@ -259,14 +265,14 @@ def load_piece_imgs():
     pieces_str = ['knight', 'lance', 'king', 'gold', 'bishop', 'pawn',
                   'silver', 'rook', 'pknight', 'plance', 'pbishop', 'ppawn',
                   'psilver', 'prook']
-    pieces = {Piece.void : np.zeros((0, 0))}
+    pieces = {Piece(None, PieceType.void, None) : np.zeros((0, 0))}
     for piece_str in pieces_str:
         piece_img = (plt.imread(PATH + piece_str + '_letter.png') * 255).astype('uint8')
 
         promoted = piece_str[0] == 'p' and piece_str[1] != 'a'
         piece_type = PieceType[piece_str[promoted:]]
-        pieces[Piece((Color.black, piece_type, promoted))] = piece_img
-        pieces[Piece((Color.white, piece_type, promoted))] = ndimage.rotate(piece_img, 180)
+        pieces[Piece(Color.black, piece_type, promoted)] = piece_img
+        pieces[Piece(Color.white, piece_type, promoted)] = ndimage.rotate(piece_img, 180)
     return pieces
 
 if __name__ == "__main__":
@@ -282,7 +288,8 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(canvas_width, canvas_height))
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
-    pieces = Board_pieces()
+    board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
+    pieces = Board_pieces(board_str, board_str)
     piece_imgs = load_piece_imgs()
     kif = shogi.KIF.Parser.parse_file(sys.argv[1])[0]
     players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
