@@ -26,6 +26,7 @@ class Piece:
 
     def __str__(self):
         return f'color: {self.color}, type: {self.piece_type}, promoted: {self.promoted}'
+
     def __hash__(self):
         if self.piece_type == PieceType.void:
             return hash((None, PieceType.void, None))
@@ -111,3 +112,7 @@ class Board:
                     self.white_hand.add_piece(piece_opp.piece_type)
                 else:
                     self.black_hand.add_piece(piece_opp.piece_type)
+
+    def save(self, fname, printer, moves):
+        data = [(Color(i % 2), move) for i, move in enumerate(moves)]
+        printer.save(fname, self, data)
