@@ -12,7 +12,7 @@ if __name__ == "__main__":
     players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
     board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
 
-    printer = MatPlotLibPrinter(size_factor=1, players=players)
+    printer = MatPlotLibPrinter(players=players)
     board = Board(board_str, board_str)
 
     moves = [Move(m) for m in kif['moves']]
