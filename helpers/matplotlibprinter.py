@@ -12,9 +12,9 @@ from helpers.board import *
 from helpers.printer import *
 
 class MatPlotLibPrinter(Printer):
-    def __init__(self, canvas_width=10, canvas_height=17, players=None):
-        self.canvas_width = canvas_width
-        self.canvas_height = canvas_height
+    def __init__(self, size_factor=1, players=None):
+        self.canvas_width = 5 * size_factor
+        self.canvas_height = 8.5 * size_factor
         self.players = players
 
         self.board_width = 8
@@ -24,14 +24,16 @@ class MatPlotLibPrinter(Printer):
         self.margin = 0.7
         self.column_width = self.board_width / 9
         self.column_height = self.board_height / 9
+        #self.zoom = math.sqrt((self.canvas_width * self.canvas_height)/170)
+        self.zoom = size_factor
 
         self.sente_img = plt.imread('resources/shogi-black.png')
         self.gote_img = plt.imread('resources/shogi-white.png')
-        self.font = FontProperties(fname='resources/ipamp.ttf', size=30)
+        self.font = FontProperties(fname='resources/ipamp.ttf', size=14.5*self.zoom)
         self.piece_imgs = self.load_piece_imgs()
 
         plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
-        self.fig, self.ax = plt.subplots(figsize=(canvas_width, canvas_height))
+        self.fig, self.ax = plt.subplots(figsize=(self.canvas_width, self.canvas_height))
         self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
     def load_piece_imgs(self):
@@ -58,9 +60,9 @@ class MatPlotLibPrinter(Printer):
         x_line_coordinates = [self.board_x + self.column_width * i for i in range (1, 9)]
         y_line_coordinates = [self.board_y + self.column_height * i for i in range (1, 9)]
         for x in x_line_coordinates:
-            self.ax.plot([x, x], [self.board_y, self.board_y + self.board_height], c='black', lw=1)
+            self.ax.plot([x, x], [self.board_y, self.board_y + self.board_height], c='black', lw=0.49*self.zoom)
         for y in y_line_coordinates:
-            self.ax.plot([self.board_x, self.board_x + self.board_width], [y, y], c='black', lw=1)
+            self.ax.plot([self.board_x, self.board_x + self.board_width], [y, y], c='black', lw=0.49*self.zoom)
 
         # Draw hoshi
         x_hoshi_coordinates = [self.board_x + self.column_width * i for i in [3, 6]]
@@ -70,18 +72,18 @@ class MatPlotLibPrinter(Printer):
         for x in x_hoshi_coordinates:
             for y in y_hoshi_coordinates:
                 self.ax.add_patch(Ellipse((x + 0.01, y - 0.01), hoshi_width,
-                                    hoshi_height, facecolor='black', fill=True, lw=2))
+                                          hoshi_height, facecolor='black', fill=True, lw=0.98 * self.zoom))
 
         # Draw coordinate
         width_shift = self.column_width / 2 - 0.05
         x_nb_coordinates = [self.board_x + self.column_width * i + width_shift for i in range (0, 9)]
         for x, i in zip(x_nb_coordinates, range(9, 0, -1)):
-            self.ax.text(x, self.board_y + self.board_height + 0.1, i, fontsize=15)
+            self.ax.text(x, self.board_y + self.board_height + 0.1, i, fontsize=7.3*self.zoom)
 
         height_shift = self.column_height / 2 - 0.09
         y_nb_coordinates = [self.board_y + self.column_height * i + height_shift for i in range (0, 9)]
         for y, i in zip(y_nb_coordinates, range(8, -1, -1)):
-            self.ax.text(self.board_x + self.board_width + 0.1, y, chr(ord('a') + i), fontsize=15)
+            self.ax.text(self.board_x + self.board_width + 0.1, y, chr(ord('a') + i), fontsize=7.3*self.zoom)
 
     def draw_piece_holder(self, winner=None):
         piece_holder_height = self.board_height / 5
@@ -95,18 +97,18 @@ class MatPlotLibPrinter(Printer):
         self.ax.add_patch(Rectangle((self.board_x, self.board_y +
                                      self.board_height + self.margin), self.board_width,
                                     piece_holder_height, edgecolor='black', fill=True,
-                                    facecolor=white_color, lw=2))
+                                    facecolor=white_color, lw=0.98*self.zoom))
         self.ax.add_patch(Rectangle((self.board_x, self.board_y -
                                      self.margin - piece_holder_height), self.board_width,
                                     piece_holder_height, edgecolor='black', fill=True,
-                                    facecolor=black_color, lw=2))
+                                    facecolor=black_color, lw=0.98*self.zoom))
 
         # Sente / Gote
-        sente = OffsetImage(self.sente_img, zoom=1)
+        sente = OffsetImage(self.sente_img, zoom=self.zoom*0.49)
         self.ax.add_artist(AnnotationBbox(sente, (self.board_x + 0.8, self.board_y -
                                                   self.margin - 0.47), frameon=False))
 
-        gote = OffsetImage(self.gote_img, zoom=1)
+        gote = OffsetImage(self.gote_img, zoom=self.zoom*0.49)
         self.ax.add_artist(AnnotationBbox(gote, (self.board_x + self.board_width - 0.8,
                                                  self.board_y + self.board_height +
                                                  self.margin + 0.47),
@@ -115,7 +117,7 @@ class MatPlotLibPrinter(Printer):
         # Players
         if self.players:
             sente, gote = self.players
-            self.ax.text(self.board_x, self.board_y - self.margin - piece_holder_height - 0.4,
+            self.ax.text(self.board_x, self.board_y - self.margin - piece_holder_height - 0.45,
                          sente, fontproperties=self.font)
             if (gote[0] >= 'a' and gote[0] <= 'z') or (gote[0] >= 'A' and gote[0] <= 'Z'):
                 size_letter = 0.2
@@ -135,13 +137,13 @@ class MatPlotLibPrinter(Printer):
         self.ax.add_patch(Rectangle((x, y), self.column_width,
                                     self.column_height,
                                     edgecolor='black', fill=True,
-                                    lw=1, facecolor=gray_color))
+                                    lw=0.48*self.zoom, facecolor=gray_color))
 
         if move.drop == None: # Piece moved
             x = self.board_x + self.column_width * (8 - move.prev_col)
             y = self.board_y + self.column_height * move.prev_line
             self.ax.add_patch(Rectangle((x, y), self.column_width, self.column_height,
-                                        edgecolor='black', fill=True, lw=1,
+                                        edgecolor='black', fill=True, lw=0.48*self.zoom,
                                         facecolor=gray_color))
 
     def draw_frame(self, winner=None, move=None):
@@ -155,7 +157,7 @@ class MatPlotLibPrinter(Printer):
 
         for i in range(9):
             for j in range(9):
-                p = OffsetImage(self.piece_imgs[board_pieces[i][8 - j]], zoom=1)
+                p = OffsetImage(self.piece_imgs[board_pieces[i][8 - j]], zoom=self.zoom*0.49)
                 x = self.board_x + self.column_width * j + 0.45
                 y = self.board_y + self.column_height * i + 0.55
                 self.ax.add_artist(AnnotationBbox(p, (x, y), frameon=False))
@@ -163,20 +165,20 @@ class MatPlotLibPrinter(Printer):
         for i, (pt, value) in enumerate(black_hand.pieces.items()):
             if value > 0:
                 p = Piece(Color.black, pt, False)
-                img = OffsetImage(self.piece_imgs[p], zoom=0.93)
+                img = OffsetImage(self.piece_imgs[p], zoom=self.zoom*0.455)
                 x = self.board_x + piece_size * i + 2.3
                 y = self.board_y - self.margin - 1
                 self.ax.add_artist(AnnotationBbox(img, (x, y), frameon=False))
-                self.ax.text(x - 0.1, y - 0.7, value, fontsize=20)
+                self.ax.text(x - 0.1, y - 0.7, value, fontsize=9.7*self.zoom)
 
         for i, (pt, value) in enumerate(white_hand.pieces.items()):
             if value > 0:
                 p = Piece(Color.white, pt, False)
-                img = OffsetImage(self.piece_imgs[p], zoom=0.93)
+                img = OffsetImage(self.piece_imgs[p], zoom=self.zoom*0.455)
                 x = self.board_x + self.board_width - piece_size * i - 2.3
                 y = self.board_y + self.board_height + self.margin + 1
                 self.ax.add_artist(AnnotationBbox(img, (x, y), frameon=False))
-                self.ax.text(x - 0.1, y + 0.5, value, fontsize=20)
+                self.ax.text(x - 0.1, y + 0.5, value, fontsize=9.7*self.zoom)
 
 
     def save(self, fname, board, data):
