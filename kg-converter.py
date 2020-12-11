@@ -1,19 +1,24 @@
-import sys
+import argparse
 import shogi.KIF
 from helpers.matplotlibprinter import *
 from helpers.board import *
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print(f'usage: python {sys.argv[0]} kifu_name gif_name')
-        exit()
+    parser = argparse.ArgumentParser(description='Create a GIF animation from a kifu file.')
+    parser.add_argument('kifu_file', help="Kifu file to transform, must have '.kifu' extension")
+    parser.add_argument('gif_name', help="Produced gif name")
+    parser.add_argument('-r', '--rescale', default=0.5,
+                        help="Size factor to rescale gif (default: 0.5 to minimize RAM usage)",
+                        type=int)
 
-    kif = shogi.KIF.Parser.parse_file(sys.argv[1])[0]
+    args = parser.parse_args()
+
+    kif = shogi.KIF.Parser.parse_file(args.kifu_file)[0]
     players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
     board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
 
-    printer = MatPlotLibPrinter(players=players)
+    printer = MatPlotLibPrinter(players=players, size_factor=args.rescale)
     board = Board(board_str, board_str)
 
     moves = [Move(m) for m in kif['moves']]
-    board.save(sys.argv[2], printer, moves)
+    board.save(args.gif_name, printer, moves)
