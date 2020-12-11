@@ -25,9 +25,9 @@ class MatPlotLibPrinter(Printer):
         #self.zoom = math.sqrt((self.canvas_width * self.canvas_height)/170)
         self.zoom = size_factor
 
-        self.sente_img = plt.imread('resources/shogi-black.png')
-        self.gote_img = plt.imread('resources/shogi-white.png')
-        self.font = FontProperties(fname='resources/ipamp.ttf', size=30*self.zoom)
+        self.sente_img = plt.imread('./resources/shogi-black.png')
+        self.gote_img = plt.imread('./resources/shogi-white.png')
+        self.font = FontProperties(fname='./resources/ipamp.ttf', size=30*self.zoom)
         self.piece_imgs = self.load_piece_imgs()
 
         plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
@@ -35,7 +35,7 @@ class MatPlotLibPrinter(Printer):
         self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
     def load_piece_imgs(self):
-        PATH = 'resources/pieces/'
+        PATH = './resources/pieces/'
         pieces_str = ['knight', 'lance', 'king', 'gold', 'bishop', 'pawn',
                     'silver', 'rook', 'pknight', 'plance', 'pbishop', 'ppawn',
                     'psilver', 'prook']

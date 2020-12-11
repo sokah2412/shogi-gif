@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Shogi gif</title>
+    </head>
+    <body>
+        <h1>Upload kifu</h1>
+        <form method=post enctype=multipart/form-data>
+            <input type=file name=file>
+            <input type=submit value=Upload onclick="waiting();">
+        </form>
+
+        <div style="display:none;" id="waiting">
+            <p>Please wait a little bit while the gif is generated.</p>
+            <p>It will display the gif when it's good.</p>
+        </div>
+
+        <script>
+            function waiting() {
+                            document.getElementById("waiting").style.display = "block";
+                        }
+        </script>
+    </body>
+</html>
