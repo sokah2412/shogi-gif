@@ -30,7 +30,7 @@ class MatPlotLibPrinter(Printer):
         self.font = FontProperties(fname='./resources/ipamp.ttf', size=30*self.zoom)
         self.piece_imgs = self.load_piece_imgs()
 
-        plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
+        #plt.switch_backend('TKAgg') # Needed because QT4Agg yield weird error
         self.fig, self.ax = plt.subplots(figsize=(self.canvas_width, self.canvas_height))
         self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
 
