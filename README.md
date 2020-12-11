@@ -12,7 +12,18 @@ move coordinate. But if you remove these spaces to keep only one, it will
 work.
 
 ```
-python kg-converter.py kifu_name.kifu gif_name.gif
+usage: kg-converter.py [-h] [-r RESCALE] kifu_file gif_name
+
+Create a GIF animation from a kifu file.
+
+positional arguments:
+  kifu_file             Kifu file to transform, must have '.kifu' extension
+  gif_name          Produced gif name
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -r RESCALE, --rescale RESCALE
+                        Size factor to rescale gif (default: 0.5 to minimize RAM usage)
 ```
 
 # Example
