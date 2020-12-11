@@ -29,6 +29,7 @@ optional arguments:
 # Example
 
 Game played 5th december 2020, by 羽生善治 九段 VS 豊島将之 竜王.
+
 ![pro game gif](test/pro-game.gif)
 
 # TODO
