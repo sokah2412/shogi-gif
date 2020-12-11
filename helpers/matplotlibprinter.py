@@ -3,13 +3,13 @@ from matplotlib.patches import Rectangle, Ellipse
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.animation import FuncAnimation
 from matplotlib.font_manager import FontProperties
-from matplotlib.animation import FuncAnimation
-from numpngw import AnimatedPNGWriter
+from matplotlib.animation import FuncAnimation, PillowWriter
 from scipy import ndimage
 import numpy as np
 import enum
 from helpers.board import *
 from helpers.printer import *
+from pygifsicle import optimize
 
 class MatPlotLibPrinter(Printer):
     def __init__(self, size_factor=0.5, players=None):
@@ -208,6 +208,7 @@ class MatPlotLibPrinter(Printer):
             self.draw_pieces(board.pieces, board.black_hand, board.white_hand)
 
         ani = FuncAnimation(self.fig, update_anim, data)
-        writer = AnimatedPNGWriter(fps=1)
+        writer = PillowWriter(fps=1)
         progress_callback = lambda i, n: print(f'Saving frame {i} of {n}')
         ani.save(fname, writer=writer, progress_callback=progress_callback)
+        optimize(fname)
