@@ -13,7 +13,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if not args.kifu_file.endswith('.kifu'):
+        parser.print_usage()
+        print('Please upload a kif encoded file, with extension .kifu')
+        exit()
+
     kif = shogi.KIF.Parser.parse_file(args.kifu_file)[0]
+    if len(kif['moves']) == 0:
+        print('Error occurs when reading kifu file')
+        exit()
     players = kif['names'][shogi.BLACK], kif['names'][shogi.WHITE]
     board_str = ['LNSGKGSNL', 'VBVVVVVRV', 'PPPPPPPPP']
 
