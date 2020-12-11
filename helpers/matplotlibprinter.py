@@ -4,8 +4,6 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.animation import FuncAnimation
 from matplotlib.font_manager import FontProperties
 from matplotlib.animation import FuncAnimation, PillowWriter
-from scipy import ndimage
-import numpy as np
 import enum
 from helpers.board import *
 from helpers.printer import *
@@ -41,14 +39,15 @@ class MatPlotLibPrinter(Printer):
         pieces_str = ['knight', 'lance', 'king', 'gold', 'bishop', 'pawn',
                     'silver', 'rook', 'pknight', 'plance', 'pbishop', 'ppawn',
                     'psilver', 'prook']
-        pieces = {Piece(None, PieceType.void, None) : np.zeros((0, 0))}
+        pieces = {}
         for piece_str in pieces_str:
-            piece_img = (plt.imread(PATH + piece_str + '_letter.png') * 255).astype('uint8')
+            piece_black = (plt.imread(PATH + piece_str + '_black.png') * 255).astype('uint8')
+            piece_white = (plt.imread(PATH + piece_str + '_white.png') * 255).astype('uint8')
 
             promoted = piece_str[0] == 'p' and piece_str[1] != 'a'
             piece_type = PieceType[piece_str[promoted:]]
-            pieces[Piece(Color.black, piece_type, promoted)] = piece_img
-            pieces[Piece(Color.white, piece_type, promoted)] = ndimage.rotate(piece_img, 180)
+            pieces[Piece(Color.black, piece_type, promoted)] = piece_black
+            pieces[Piece(Color.white, piece_type, promoted)] = piece_white
         return pieces
 
     def draw_board(self):
@@ -157,7 +156,10 @@ class MatPlotLibPrinter(Printer):
 
         for i in range(9):
             for j in range(9):
-                p = OffsetImage(self.piece_imgs[board_pieces[i][8 - j]], zoom=self.zoom)
+                piece = board_pieces[i][8 - j]
+                if piece.piece_type == PieceType.void:
+                    continue
+                p = OffsetImage(self.piece_imgs[piece], zoom=self.zoom)
                 x = self.board_x + self.column_width * j + 0.45
                 y = self.board_y + self.column_height * i + 0.55
                 self.ax.add_artist(AnnotationBbox(p, (x, y), frameon=False))
